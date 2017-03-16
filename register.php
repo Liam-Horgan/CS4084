@@ -2,17 +2,21 @@
 ob_start();
 session_start();
 if( isset($_SESSION['user'])!="" ){
-	header("Location: home.php");
+	header("Location: dashbord.php");
 }
-include_once 'dbconnect.php';
+include_once 'config.php';
 $error = false;
 if ( isset($_POST['btn-signup']) ) {
 
 	// clean user inputs to prevent sql injections
-	$name = trim($_POST['name']);
-	$name = strip_tags($name);
-	$name = htmlspecialchars($name);
+	$firstname = trim($_POST['firstname']);
+	$firstname = strip_tags($firstname);
+	$firstname = htmlspecialchars($firstname);
 
+	$lastname = trim($_POST['lastname']);
+	$lastname = strip_tags($lastname);
+	$lastname = htmlspecialchars($lastname);
+	
 	$email = trim($_POST['email']);
 	$email = strip_tags($email);
 	$email = htmlspecialchars($email);
@@ -24,19 +28,7 @@ if ( isset($_POST['btn-signup']) ) {
 	$studentID = trim($_POST['studentID']);
 	$studentID = strip_tags($studentID);
 	$studentID = htmlspecialchars($studentID);
-
-	// name validation
-	if (empty($name)) {
-		$error = true;
-		$nameError = "Please enter your full name.";
-	} else if (strlen($name) < 3) {
-		$error = true;
-		$nameError = "Name must have atleat 3 characters.";
-	} else if (!preg_match("/^[a-zA-Z ]+$/",$name)) {
-		$error = true;
-		$nameError = "Name must contain alphabets and space.";
-	}
-
+	
 	// email validation
 	if ( !filter_var($email,FILTER_VALIDATE_EMAIL) ) {
 		$error = true;
@@ -77,16 +69,17 @@ if ( isset($_POST['btn-signup']) ) {
 	// password encrypt using SHA256();
 	$password = hash('sha256', $pass);
 	if( !$error ) {
-		$query = "INSERT INTO users(userName,userEmail,userPass,userID) VALUES('$name','$email','$password','$studentID)";
+		$query = "INSERT INTO users(firstName,lastName,studentId,userEmail,userPass) VALUES('$firstname','$lastname','$studentID','$email','$password')";
 		$res = mysql_query($query);
 
 		if ($res) {
 			$errTyp = "success";
 			$errMSG = "Successfully registered, you may login now";
-			unset($name);
+			unset($firstname);
+			unset($lastname);
+			unset($studentID);
 			unset($email);
 			unset($pass);
-			unset($studentID);
 		} else {
 			$errTyp = "danger";
 			$errMSG = "Something went wrong, try again later...";
